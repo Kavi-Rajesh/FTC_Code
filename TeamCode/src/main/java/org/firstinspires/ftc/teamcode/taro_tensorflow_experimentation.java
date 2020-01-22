@@ -54,8 +54,8 @@ public class taro_tensorflow_experimentation extends LinearOpMode {
     private static final String LABEL_SECOND_ELEMENT = "Skystone";
 
     private ElapsedTime runtime = new ElapsedTime();
-    private DcMotor fldrive, frdrive, bldrive, brdrive, fly_Wheel, back_Slide, left_Slide, top_Slide; // initialize all motors
-    Servo arm_servo, hand_servo, head_servo, hair1_servo, hair2_servo;
+    private DcMotor fldrive, frdrive, bldrive, brdrive, fly_Wheel, back_Slide, left_Slide; // initialize all motors
+    Servo lift_left, lift_right, rotate_left, rotate_right, rotate_center;
 
     //Servo servo;
 
@@ -91,11 +91,11 @@ public class taro_tensorflow_experimentation extends LinearOpMode {
         top_Slide = hardwareMap.get(DcMotor.class, "top_Slide");
 
         //servo initialization
-        arm_servo = hardwareMap.get(Servo.class, "arm");
-        hand_servo = hardwareMap.get(Servo.class, "hand");
-        head_servo = hardwareMap.get(Servo.class, "head");
-        hair1_servo = hardwareMap.get(Servo.class, "hair1");
-        hair2_servo = hardwareMap.get(Servo.class, "hair2");
+        lift_left = hardwareMap.get(Servo.class, "left-lifter");
+        lift_right = hardwareMap.get(Servo.class, "right-lifter");
+        rotate_center = hardwareMap.get(Servo.class, "center-rotator");
+        rotate_left = hardwareMap.get(Servo.class, "left-rotator");
+        rotate_right = hardwareMap.get(Servo.class, "right-rotator");
 
         //drive train motor directions
         fldrive.setDirection(DcMotor.Direction.FORWARD);
@@ -107,7 +107,7 @@ public class taro_tensorflow_experimentation extends LinearOpMode {
         fly_Wheel.setDirection(DcMotor.Direction.FORWARD);// fly wheel motor
         back_Slide.setDirection(DcMotor.Direction.FORWARD);
         left_Slide.setDirection(DcMotor.Direction.FORWARD);
-        top_Slide.setDirection(DcMotor.Direction.FORWARD);
+
 
         if (ClassFactory.getInstance().canCreateTFObjectDetector()) {
             initTfod();
@@ -147,9 +147,13 @@ public class taro_tensorflow_experimentation extends LinearOpMode {
                           if (recognition.getLabel().equals(LABEL_SECOND_ELEMENT)){
                               //when SkyStone detected
                               forward(0.1, 2);
-                              arm(0);
+                              fly_wheels_in(0.5, 100);
                               backward(0.1, 2);
                               right(0.05, 2);
+                              forward(0.1, 100);
+                              fly_wheels_out (0.5, 100);
+                              backward(0.1, 4);
+                              break;
                           }
 
                           telemetry.addData(String.format("label (%d)", i), recognition.getLabel());
@@ -412,6 +416,20 @@ public class taro_tensorflow_experimentation extends LinearOpMode {
         fly_Wheel.setTargetPosition(distance);
         fly_Wheel.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         fly_Wheel.setPower(power);
+
+        while (fly_Wheel.isBusy()) {
+            //until rotations complete
+        }
+
+        power = 0.0;
+        fly_Wheel.setPower(power);
+    }
+
+    public void fly_wheels_out(double power, int distance) {
+        fly_Wheel.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        fly_Wheel.setTargetPosition(distance);
+        fly_Wheel.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        fly_Wheel.setPower(-1 * power);
 
         while (fly_Wheel.isBusy()) {
             //until rotations complete
