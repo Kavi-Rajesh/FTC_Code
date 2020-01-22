@@ -59,8 +59,7 @@ public class taro_tensorflow_experimentation extends LinearOpMode {
 
     //Servo servo;
 
-    private static final String VUFORIA_KEY =
-            "ARZSVjv/////AAABmbFVYMvEBEg1i14c/gYXU1QSxd7JrRov3nzCufUBnZaW+W4Brt9ma44NYvvCTPjEI6yKKvf+tHXE21sApVu52FWz2R7IXb3dUcnL8omF+I3/kH2tmCp+Ps+dygy16NJo2ZPwJe5RNTui0EJ9x6AvNz8z9UdZjMpCwTCWwZ57NW3iXWjFYRRU8sEb0Yb31uQUeN7612t8inQXvPVzTeJAW2A5u48T2alsmVw/Z9vKDmUATi1LgVNwuKa8krGlGBa2joNnt81JqOSuWotWTICmC6W6ZEqiYedlAcCTAZWSDmekIXa8m+espguXv16FzkcJAiq62FxMUFGw+aNKjnyCsubOoIRRwq2k1RZ8K9FveEUF";
+    private static final String VUFORIA_KEY = "ARZSVjv/////AAABmbFVYMvEBEg1i14c/gYXU1QSxd7JrRov3nzCufUBnZaW+W4Brt9ma44NYvvCTPjEI6yKKvf+tHXE21sApVu52FWz2R7IXb3dUcnL8omF+I3/kH2tmCp+Ps+dygy16NJo2ZPwJe5RNTui0EJ9x6AvNz8z9UdZjMpCwTCWwZ57NW3iXWjFYRRU8sEb0Yb31uQUeN7612t8inQXvPVzTeJAW2A5u48T2alsmVw/Z9vKDmUATi1LgVNwuKa8krGlGBa2joNnt81JqOSuWotWTICmC6W6ZEqiYedlAcCTAZWSDmekIXa8m+espguXv16FzkcJAiq62FxMUFGw+aNKjnyCsubOoIRRwq2k1RZ8K9FveEUF";
 
     /**
      * {@link #vuforia} is the variable we will use to store our instance of the Vuforia
