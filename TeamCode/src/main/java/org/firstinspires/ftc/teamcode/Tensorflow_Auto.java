@@ -48,7 +48,7 @@ import java.util.List;
 
 @Autonomous(name = "taro_tensorflow_experimentation", group = "Concept")
 //@Disabled
-public class taro_tensorflow_experimentation extends LinearOpMode {
+public class Tensorflow_Auto extends LinearOpMode {
     private static final String TFOD_MODEL_ASSET = "Skystone.tflite";
     private static final String LABEL_FIRST_ELEMENT = "Stone";
     private static final String LABEL_SECOND_ELEMENT = "Skystone";
@@ -88,7 +88,7 @@ public class taro_tensorflow_experimentation extends LinearOpMode {
         fly_Wheel = hardwareMap.get(DcMotor.class, "fly_Wheel");
         back_Slide = hardwareMap.get(DcMotor.class, "back_Slide");
         left_Slide = hardwareMap.get(DcMotor.class, "left_Slide");
-        top_Slide = hardwareMap.get(DcMotor.class, "top_Slide");
+        //top_Slide = hardwareMap.get(DcMotor.class, "top_Slide");
 
         //servo initialization
         lift_left = hardwareMap.get(Servo.class, "left-lifter");
@@ -142,16 +142,19 @@ public class taro_tensorflow_experimentation extends LinearOpMode {
 
                       for (Recognition recognition : updatedRecognitions) {
                           if (recognition.getLabel().equals(LABEL_FIRST_ELEMENT)){
-                              straferight(0.05, 1);
+                              //do nothing, keep moving
                           }
                           if (recognition.getLabel().equals(LABEL_SECOND_ELEMENT)){
                               //when SkyStone detected
                               forward(0.1, 2);
+                              //suck in block
                               fly_wheels_in(0.5, 100);
                               backward(0.1, 2);
                               right(0.05, 2);
                               forward(0.1, 100);
+                              //drop skystone
                               fly_wheels_out (0.5, 100);
+                              //park on line
                               backward(0.1, 4);
                               break;
                           }
@@ -394,23 +397,20 @@ public class taro_tensorflow_experimentation extends LinearOpMode {
     }
 
     //servo functions
-    public void head(double position){
-        head_servo.setPosition(position);
+    public void center_rotater (double position) {
+        rotate_center.setPosition(position);
     }
-    public void hand(double position){
-        hand_servo.setPosition(position);
+
+    public void double_rotater (double position){
+        rotate_left.setPosition(position);
+        rotate_right.setPosition(position);
     }
-    public void arm(double position) {
-        arm_servo.setPosition(position);
+
+    public void slide_top (double position){
+        lift_left.setPosition(position);
+        lift_right.setPosition(position);
     }
-    public void hair_close(){
-        hair1_servo.setPosition(0);
-        hair2_servo.setPosition(0);
-    }
-    public void hair_open(){
-        hair1_servo.setPosition(0.5);
-        hair2_servo.setPosition(0.5);
-    }
+
     public void fly_wheels_in(double power, int distance) {
         fly_Wheel.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         fly_Wheel.setTargetPosition(distance);
@@ -461,6 +461,7 @@ public class taro_tensorflow_experimentation extends LinearOpMode {
         back_Slide.setPower(power);
         left_Slide.setPower(power);
     }
+
     public void slide_down(double power, int distance) {
         back_Slide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         left_Slide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -482,7 +483,8 @@ public class taro_tensorflow_experimentation extends LinearOpMode {
         back_Slide.setPower(power);
         left_Slide.setPower(power);
     }
-    public void slide_out(double power, int distance){
+
+    /*public void slide_out(double power, int distance){
         top_Slide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         top_Slide.setTargetPosition(distance);
         top_Slide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
@@ -505,5 +507,5 @@ public class taro_tensorflow_experimentation extends LinearOpMode {
         }
         power = 0.0;
         top_Slide.setPower(power);
-    }
+    }*/
 }
