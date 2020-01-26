@@ -9,9 +9,8 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
 
-//this is the official Autonomous Code for Team Taro.
-//this uses Mecanum wheels. They are a bit different from normal wheels: not only can they turn and move forward/backward,
-//but they can also strafe left and strafe right.
+//this is the Drivetrain Autonomous Code for Team Taro.
+//this uses Mecanum wheels. They are a bit different from normal wheels: not only can they turn and move forward/backward, but they can also strafe left and strafe right.
 
 @Autonomous(name="MecanumAuto", group="Linear OpMode")
 
