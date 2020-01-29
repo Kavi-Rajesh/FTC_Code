@@ -12,11 +12,11 @@ import com.qualcomm.robotcore.hardware.Servo;
 public class MainTeleOp extends LinearOpMode {
 
     private ElapsedTime runtime = new ElapsedTime();
-    private DcMotor fldrive, frdrive, bldrive, brdrive, flywheel, leftslide, rightslide;// arm;
-    //private Servo leftextender, rightextender, leftrotater, rightrotater, centerrotater, grabber1, grabber2;
+    private DcMotor fldrive, frdrive, bldrive, brdrive, flywheel, leftslide, rightslide; // arm;
+    private Servo leftextender, rightextender, leftrotater, rightrotater, centerrotater, grabber1, grabber2;
 
     double left_trigger_value = 0;
-    /*
+
     double leftextenderposition = 0;
     double rightextenderposition = 0;
     double leftrotaterposition = 0;
@@ -28,7 +28,7 @@ public class MainTeleOp extends LinearOpMode {
     double grabber1position = 0;
     double grabber2position = 0;
     double grabberincrement = 0.01;
-    */
+
 
 
     @Override
@@ -45,7 +45,7 @@ public class MainTeleOp extends LinearOpMode {
         rightslide = hardwareMap.get(DcMotor.class, "right_slide");
         //arm = hardwareMap.get(DcMotor.class, "arm");
 
-        /*
+
         leftextender = hardwareMap.get(Servo.class, "left_extender");
         rightextender = hardwareMap.get(Servo.class, "right_extender");
         leftrotater = hardwareMap.get(Servo.class, "left_rotater");
@@ -53,7 +53,7 @@ public class MainTeleOp extends LinearOpMode {
         centerrotater = hardwareMap.get(Servo.class, "center_rotater");
         grabber1 = hardwareMap.get(Servo.class, "grabber1");
         grabber2 = hardwareMap.get(Servo.class, "grabber2");
-         */
+
 
         fldrive.setDirection(DcMotor.Direction.FORWARD);
         frdrive.setDirection(DcMotor.Direction.REVERSE);
@@ -131,7 +131,7 @@ public class MainTeleOp extends LinearOpMode {
 
             //arm.setPower(Range.clip(arm, -armpower, armpower));
 
-            /*
+
             leftextenderposition = leftextender.getPosition() - (gamepad2.right_trigger * 0.1);
             leftextender.setPosition(leftextenderposition);
 
@@ -173,7 +173,6 @@ public class MainTeleOp extends LinearOpMode {
                 grabber1.setPosition(grabber1position);
                 grabber2.setPosition(grabber2position);
             }
-            */
 
 
             telemetry.addData("Status", "Run Time: " + runtime.toString());
