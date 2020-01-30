@@ -42,8 +42,8 @@ import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.hardware.Servo;
-
 import java.util.List;
+
 
 @Autonomous(name = "taro_tensorflow_experimentation", group = "Concept")
 //@Disabled
@@ -103,7 +103,7 @@ public class Tensorflow_Auto extends LinearOpMode {
         bldrive.setDirection(DcMotor.Direction.FORWARD);
 
         //other DcMotor directions
-        fly_Wheel.setDirection(DcMotor.Direction.FORWARD);// fly wheel motor
+        fly_Wheel.setDirection(DcMotor.Direction.FORWARD);
         back_Slide.setDirection(DcMotor.Direction.FORWARD);
         left_Slide.setDirection(DcMotor.Direction.FORWARD);
 
