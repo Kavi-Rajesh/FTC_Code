@@ -37,6 +37,7 @@ public class MecanumAuto extends LinearOpMode{
         rightslide = hardwareMap.get(DcMotor.class, "right_slide");
         //arm = hardwareMap.get(DcMotor.class, "arm");
 
+        /*
         leftextender = hardwareMap.get(Servo.class, "left_extender");
         rightextender = hardwareMap.get(Servo.class, "right_extender");
         leftrotater = hardwareMap.get(Servo.class, "left_rotater");
@@ -44,6 +45,7 @@ public class MecanumAuto extends LinearOpMode{
         centerrotater = hardwareMap.get(Servo.class, "center_rotater");
         grabber1 = hardwareMap.get(Servo.class, "grabber1");
         grabber2 = hardwareMap.get(Servo.class, "grabber2");
+        */
 
         fldrive.setDirection(DcMotor.Direction.FORWARD);
         frdrive.setDirection(DcMotor.Direction.REVERSE);
@@ -57,7 +59,8 @@ public class MecanumAuto extends LinearOpMode{
         runtime.reset();
 
         //write code here using functions
-
+        forward(0.1, 2000);
+        straferight(1, 3000);
     }
 
 
