@@ -29,8 +29,6 @@
 
 package org.firstinspires.ftc.teamcode;
 
-//import com.qualcomm.robotcore.eventloop.opmode.Disabled;
-
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
@@ -45,16 +43,16 @@ import com.qualcomm.robotcore.hardware.Servo;
 import java.util.List;
 
 
-@Autonomous(name = "taro_tensorflow_experimentation", group = "Concept")
-//@Disabled
+@Autonomous(name = "Tensorflow_Auto", group = "Concept")
+
 public class Tensorflow_Auto extends LinearOpMode {
     private static final String TFOD_MODEL_ASSET = "Skystone.tflite";
     private static final String LABEL_FIRST_ELEMENT = "Stone";
     private static final String LABEL_SECOND_ELEMENT = "Skystone";
 
     private ElapsedTime runtime = new ElapsedTime();
-    private DcMotor fldrive, frdrive, bldrive, brdrive, fly_Wheel, back_Slide, left_Slide; // initialize all motors
-    Servo lift_left, lift_right, rotate_left, rotate_right, rotate_center;
+    private DcMotor fldrive, frdrive, bldrive, brdrive, fly_Wheel_R, fly_Wheel_L, right_Slide, left_Slide; // initialize all motors
+    Servo lift_left, lift_right, rotate_left, rotate_right, rotate_center; // initialize all servos
 
     //Servo servo;
 
@@ -78,16 +76,16 @@ public class Tensorflow_Auto extends LinearOpMode {
 
         initVuforia();
 
-        fldrive  = hardwareMap.get(DcMotor.class, "fl_drive");
-        frdrive  = hardwareMap.get(DcMotor.class, "fr_drive");
-        brdrive = hardwareMap.get(DcMotor.class, "br_drive");
-        bldrive = hardwareMap.get(DcMotor.class, "bl_drive");
+        fldrive  = hardwareMap.get(DcMotor.class, "fldrive");
+        frdrive  = hardwareMap.get(DcMotor.class, "frdrive");
+        brdrive = hardwareMap.get(DcMotor.class, "brdrive");
+        bldrive = hardwareMap.get(DcMotor.class, "bldrive");
 
         //flywheels and slide initializations
-        fly_Wheel = hardwareMap.get(DcMotor.class, "fly_Wheel");
-        back_Slide = hardwareMap.get(DcMotor.class, "back_Slide");
+        fly_Wheel_R = hardwareMap.get(DcMotor.class, "fly_Wheel_R");
+        fly_Wheel_L = hardwareMap.get(DcMotor.class, "fly_Wheel_L");
+        right_Slide = hardwareMap.get(DcMotor.class, "right_Slide");
         left_Slide = hardwareMap.get(DcMotor.class, "left_Slide");
-        //top_Slide = hardwareMap.get(DcMotor.class, "top_Slide");
 
         //servo initialization
         lift_left = hardwareMap.get(Servo.class, "left-lifter");
@@ -103,10 +101,21 @@ public class Tensorflow_Auto extends LinearOpMode {
         bldrive.setDirection(DcMotor.Direction.FORWARD);
 
         //other DcMotor directions
-        fly_Wheel.setDirection(DcMotor.Direction.FORWARD);
-        back_Slide.setDirection(DcMotor.Direction.FORWARD);
+        fly_Wheel_R.setDirection(DcMotor.Direction.FORWARD);
+        fly_Wheel_L.setDirection(DcMotor.Direction.REVERSE);
+        right_Slide.setDirection(DcMotor.Direction.FORWARD);
         left_Slide.setDirection(DcMotor.Direction.FORWARD);
 
+        //set up encoders
+        fldrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        bldrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        brdrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        frdrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        fly_Wheel_R.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        fly_Wheel_L.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        right_Slide.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        left_Slide.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         if (ClassFactory.getInstance().canCreateTFObjectDetector()) {
             initTfod();
@@ -114,37 +123,40 @@ public class Tensorflow_Auto extends LinearOpMode {
             telemetry.addData("Sorry!", "This device is not compatible with TFOD.");
         }
 
-        /**
-         * Activate TensorFlow Object Detection before we wait for the start command.
-         * Do it here so that the Camera Stream window will have the TensorFlow annotations visible.
-         **/
+        //activates Tensorflow and displays camera view on init
         if (tfod != null) {
             tfod.activate();
         }
 
-        /** Wait for the game to begin */
-        telemetry.addData(">", "Press Play to start op mode");
-        telemetry.update();
+
         waitForStart();
 
         if (opModeIsActive()) {
             while (opModeIsActive()) {
                 straferight(0.05, 1000);
                 if (tfod != null) {
-                    // getUpdatedRecognitions() will return null if no new information is available since
-                    // the last time that call was made.
                     List<Recognition> updatedRecognitions = tfod.getUpdatedRecognitions();
                     if (updatedRecognitions != null) {
                       telemetry.addData("% Object Detected", updatedRecognitions.size());
-                      // step through the list of recognitions and display boundary info.
                       int i = 0;
+                      float distance_ratio;
+                      int img_height;
+                      float obj_height;
 
                       for (Recognition recognition : updatedRecognitions) {
+                          img_height = recognition.getImageHeight();
+                          obj_height = recognition.getHeight();
+                          distance_ratio = img_height/obj_height;
+
                           if (recognition.getLabel().equals(LABEL_FIRST_ELEMENT)){
                               //do nothing, keep moving
                           }
                           if (recognition.getLabel().equals(LABEL_SECOND_ELEMENT)){
                               //when SkyStone detected
+                              //distance for functions are currently all estimates, need to be changed
+                              while (distance_ratio != .2) {
+                                  forward(0.4, 10);
+                              }
                               forward(0.1, 2);
                               //suck in block
                               fly_wheels_in(0.5, 100);
@@ -155,6 +167,7 @@ public class Tensorflow_Auto extends LinearOpMode {
                               fly_wheels_out (0.5, 100);
                               //park on line
                               backward(0.1, 4);
+                              tfod.deactivate();
                               break;
                           }
 
@@ -230,11 +243,10 @@ public class Tensorflow_Auto extends LinearOpMode {
             //until point reached
         }
 
-        power = 0.0;
-        fldrive.setPower(power);
-        frdrive.setPower(power);
-        brdrive.setPower(power);
-        bldrive.setPower(power);
+        fldrive.setPower(0);
+        frdrive.setPower(0);
+        brdrive.setPower(0);
+        bldrive.setPower(0);
     }
 
     public void backward(double power, int distance) {
@@ -261,12 +273,11 @@ public class Tensorflow_Auto extends LinearOpMode {
         while (fldrive.isBusy() && frdrive.isBusy() && bldrive.isBusy() && brdrive.isBusy()) {
             //until point reached
         }
-
-        power = 0.0;
-        fldrive.setPower(-power);
-        frdrive.setPower(-power);
-        brdrive.setPower(-power);
-        bldrive.setPower(-power);
+        
+        fldrive.setPower(0);
+        frdrive.setPower(0);
+        brdrive.setPower(0);
+        bldrive.setPower(0);
     }
 
     public void left(double power, int distance) {
@@ -294,11 +305,10 @@ public class Tensorflow_Auto extends LinearOpMode {
             //until point reached
         }
 
-        power = 0.0;
-        fldrive.setPower(power);
-        frdrive.setPower(power);
-        brdrive.setPower(power);
-        bldrive.setPower(power);
+        fldrive.setPower(0);
+        frdrive.setPower(0);
+        brdrive.setPower(0);
+        bldrive.setPower(0);
     }
 
     public void right(double power, int distance) {
@@ -326,11 +336,10 @@ public class Tensorflow_Auto extends LinearOpMode {
             //until point reached
         }
 
-        power = 0.0;
-        fldrive.setPower(-power);
-        frdrive.setPower(-power);
-        brdrive.setPower(-power);
-        bldrive.setPower(-power);
+        fldrive.setPower(0);
+        frdrive.setPower(0);
+        brdrive.setPower(0);
+        bldrive.setPower(0);
     }
     public void strafeleft(double power, int distance) {
         fldrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -357,12 +366,12 @@ public class Tensorflow_Auto extends LinearOpMode {
             //until point reached
         }
 
-        power = 0.0;
-        fldrive.setPower(power);
-        frdrive.setPower(power);
-        brdrive.setPower(power);
-        bldrive.setPower(power);
+        fldrive.setPower(0);
+        frdrive.setPower(0);
+        brdrive.setPower(0);
+        bldrive.setPower(0);
     }
+
     public void straferight(double power, int distance) {
         fldrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         frdrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -388,14 +397,13 @@ public class Tensorflow_Auto extends LinearOpMode {
             //until point reached
         }
 
-        power = 0.0;
-        fldrive.setPower(power);
-        frdrive.setPower(power);
-        brdrive.setPower(power);
-        bldrive.setPower(power);
+        fldrive.setPower(0);
+        frdrive.setPower(0);
+        brdrive.setPower(0);
+        bldrive.setPower(0);
     }
 
-    //servo functions
+    // servo functions
     public void center_rotater (double position) {
         rotate_center.setPosition(position);
     }
@@ -405,106 +413,112 @@ public class Tensorflow_Auto extends LinearOpMode {
         rotate_right.setPosition(position);
     }
 
-    public void slide_top (double position){
+    public void extend_arm (double position){
         lift_left.setPosition(position);
         lift_right.setPosition(position);
     }
 
-    public void fly_wheels_in(double power, int distance) {
-        fly_Wheel.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        fly_Wheel.setTargetPosition(distance);
-        fly_Wheel.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        fly_Wheel.setPower(power);
+    public void unextend_arm (double position){
+        lift_left.setPosition(-position);
+        lift_right.setPosition(-position);
+    }
 
-        while (fly_Wheel.isBusy()) {
+    public void raise_arm (double position){
+        rotate_left.setPosition(position);
+        rotate_right.setPosition(position);
+    }
+
+    public void lower_arm (double position){
+        rotate_left.setPosition(-position);
+        rotate_right.setPosition(-position);
+    }
+
+    // flywheel functions
+    public void fly_wheels_in(double power, int distance) {
+        fly_Wheel_R.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        fly_Wheel_L.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+        fly_Wheel_R.setTargetPosition(distance);
+        fly_Wheel_L.setTargetPosition(distance);
+
+        fly_Wheel_R.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        fly_Wheel_L.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+        fly_Wheel_R.setPower(power);
+        fly_Wheel_L.setPower(power);
+
+        while (fly_Wheel_R.isBusy() && fly_Wheel_L.isBusy()) {
             //until rotations complete
         }
 
-        power = 0.0;
-        fly_Wheel.setPower(power);
+        fly_Wheel_R.setPower(0);
+        fly_Wheel_L.setPower(0);
     }
 
     public void fly_wheels_out(double power, int distance) {
-        fly_Wheel.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        fly_Wheel.setTargetPosition(distance);
-        fly_Wheel.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        fly_Wheel.setPower(-1 * power);
+        fly_Wheel_R.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        fly_Wheel_L.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
-        while (fly_Wheel.isBusy()) {
+        fly_Wheel_R.setTargetPosition(distance);
+        fly_Wheel_L.setTargetPosition(distance);
+
+        fly_Wheel_R.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        fly_Wheel_L.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+        fly_Wheel_R.setPower(-power);
+        fly_Wheel_L.setPower(-power);
+
+        while (fly_Wheel_R.isBusy() && fly_Wheel_L.isBusy()) {
             //until rotations complete
         }
 
-        power = 0.0;
-        fly_Wheel.setPower(power);
+        fly_Wheel_R.setPower(0);
+        fly_Wheel_L.setPower(0);
     }
 
-    //linear slide functions
+    // linear slide functions
     public void slide_up(double power, int distance) {
-        back_Slide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        right_Slide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         left_Slide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
-        back_Slide.setTargetPosition(distance);
+        right_Slide.setTargetPosition(distance);
         left_Slide.setTargetPosition(distance);
 
-        back_Slide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        right_Slide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         left_Slide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
-        back_Slide.setPower(power);
+        right_Slide.setPower(power);
         left_Slide.setPower(power);
 
-        while (back_Slide.isBusy() && left_Slide.isBusy()) {
+        while (right_Slide.isBusy() && left_Slide.isBusy()) {
             //until point reached
         }
 
         power = 0.0;
-        back_Slide.setPower(power);
+        right_Slide.setPower(power);
         left_Slide.setPower(power);
     }
 
     public void slide_down(double power, int distance) {
-        back_Slide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        right_Slide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         left_Slide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
-        back_Slide.setTargetPosition(distance);
+        right_Slide.setTargetPosition(distance);
         left_Slide.setTargetPosition(distance);
 
-        back_Slide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        right_Slide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         left_Slide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
-        back_Slide.setPower(-power);
+        right_Slide.setPower(-power);
         left_Slide.setPower(-power);
 
-        while (back_Slide.isBusy() && left_Slide.isBusy()) {
+        while (right_Slide.isBusy() && left_Slide.isBusy()) {
             //until point reached
         }
 
         power = 0.0;
-        back_Slide.setPower(power);
+        right_Slide.setPower(power);
         left_Slide.setPower(power);
     }
 
-    /*public void slide_out(double power, int distance){
-        top_Slide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        top_Slide.setTargetPosition(distance);
-        top_Slide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        top_Slide.setPower(power);
-
-        while (top_Slide.isBusy()){
-            //until point reached
-        }
-        power = 0.0;
-        top_Slide.setPower(power);
-    }
-    public void slide_in(double power, int distance){
-        top_Slide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        top_Slide.setTargetPosition(distance);
-        top_Slide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        top_Slide.setPower(-power);
-
-        while (top_Slide.isBusy()){
-            //until point reached
-        }
-        power = 0.0;
-        top_Slide.setPower(power);
-    }*/
 }
