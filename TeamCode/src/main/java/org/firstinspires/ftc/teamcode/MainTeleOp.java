@@ -76,8 +76,8 @@ public class MainTeleOp extends LinearOpMode {
 
             double drivepower;
             double flypower = 1;
-            //double liftpower = 1;
-            double liftpower = gamepad2.left_stick_y;
+            double liftpower = 1;
+            //double liftpower = gamepad2.left_stick_y;
             int liftincrement = 50;
             //double armpower = 1;
 
@@ -117,7 +117,7 @@ public class MainTeleOp extends LinearOpMode {
             flywheel.setPower(Range.clip(fly_wheel, -flypower, flypower));
 
 
-            if(liftpower > 0) {
+            /*if(liftpower > 0) {
                 leftslide.setTargetPosition(leftslide.getCurrentPosition() + liftincrement);
                 rightslide.setTargetPosition(leftslide.getCurrentPosition() + liftincrement);
 
@@ -151,7 +151,7 @@ public class MainTeleOp extends LinearOpMode {
                 rightslide.setPower(0);
             } else{
                 //no action
-            }
+            }*/
 
 
 
